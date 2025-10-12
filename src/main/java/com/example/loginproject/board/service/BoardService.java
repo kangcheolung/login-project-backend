@@ -21,6 +21,46 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
 
+    /**
+     * 전체 게시판 조회
+     */
+    @Transactional(readOnly = true)
+    public Page<BoardListResponse> getAllBoards(Pageable pageable) {
+        Page<Board> boards = boardRepository.findAll(pageable);
+        return boards.map(BoardListResponse::from);
+    }
+
+    /**
+     * 내 게시글만 조회 (정보 조회 페이지)
+     */
+    @Transactional(readOnly = true)
+    public Page<BoardListResponse> getMyBoardList(Long userNo, Pageable pageable) {
+        User user = userRepository.findById(userNo)
+                .orElseThrow(UserException.UserNotFoundException::new);
+
+        Page<Board> boards = boardRepository.findByUser(user, pageable);
+        return boards.map(BoardListResponse::from);
+    }
+
+    /**
+     * 게시글 상세 조회 (조회수 증가)
+     */
+    @Transactional
+    public BoardResponse getBoardDetail(Long boardNo, Long userNo) {
+        Board board = boardRepository.findById(boardNo)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+
+        // 본인이 아니면 조회수 증가
+        if (!board.getUser().getUserNo().equals(userNo)) {
+            board.incrementViewCount();
+        }
+
+        return BoardResponse.from(board);
+    }
+
+    /**
+     * 게시글 작성
+     */
     @Transactional
     public BoardResponse createBoard(BoardRequest request, Long userNo) {
         User user = userRepository.findById(userNo)
@@ -32,55 +72,39 @@ public class BoardService {
                 .category(request.getCategory())
                 .user(user)
                 .build();
+
         Board savedBoard = boardRepository.save(board);
         return BoardResponse.from(savedBoard);
     }
 
-    @Transactional(readOnly = true)
-    public Page<BoardListResponse> getMyBoardList(Long userNo,Pageable pageable) {
-        User user = userRepository.findById(userNo)
-                .orElseThrow(UserException.UserNotFoundException::new);
-
-        Page<Board> boards = boardRepository.findByUser(user, pageable);
-        return boards.map(BoardListResponse::from);
-    }
-
-    @Transactional
-    public BoardResponse getBoardDetail(Long boardNo, Long userNo) {
-        Board board = boardRepository.findById(boardNo)
-                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
-
-        if (!board.getUser().getUserNo().equals(userNo)) {
-            board.incrementViewCount();
-        }
-
-        return BoardResponse.from(board);
-    }
-
+    /**
+     * 게시글 수정 (본인만 가능)
+     */
     @Transactional
     public BoardResponse updateBoard(Long boardNo, BoardRequest request, Long userNo) {
         Board board = boardRepository.findById(boardNo)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
         if (!board.getUser().getUserNo().equals(userNo)) {
-            throw new IllegalArgumentException("게시글 작성자만 접근할 수 있습니다");
+            throw new IllegalArgumentException("본인이 작성한 게시글만 수정할 수 있습니다.");
         }
 
         board.updateBoard(request.getTitle(), request.getContent(), request.getCategory());
         return BoardResponse.from(board);
     }
 
+    /**
+     * 게시글 삭제 (본인만 가능)
+     */
     @Transactional
     public void deleteBoard(Long boardNo, Long userNo) {
         Board board = boardRepository.findById(boardNo)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
         if (!board.getUser().getUserNo().equals(userNo)) {
-            throw new IllegalArgumentException("게시글 작성자만 접근할 수 있습니다");
+            throw new IllegalArgumentException("본인이 작성한 게시글만 삭제할 수 있습니다.");
         }
 
         boardRepository.delete(board);
     }
-
-
 }
