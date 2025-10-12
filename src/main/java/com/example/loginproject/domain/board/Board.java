@@ -31,11 +31,11 @@ public class Board {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Column(length = 50)
-    private String category;
+    @Column(nullable = false, length = 50)
+    private String category;  // ← String 그대로
 
-    @Column(name = "view_count")
-    private Integer viewCount = 0;
+    @Column(name = "view_count", nullable = false)
+    private Long viewCount = 0L;
 
     @CreationTimestamp
     @Column(name = "created_date", updatable = false)
@@ -47,5 +47,16 @@ public class Board {
         this.title = title;
         this.content = content;
         this.category = category;
+        this.viewCount = 0L;
+    }
+
+    public void updateBoard(String title, String content, String category) {
+        this.title = title;
+        this.content = content;
+        this.category = category;
+    }
+
+    public void incrementViewCount() {
+        this.viewCount++;
     }
 }
