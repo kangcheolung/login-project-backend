@@ -1,5 +1,6 @@
 package com.example.loginproject.config;
 
+import com.example.loginproject.security.CustomAuthenticationEntryPoint;
 import com.example.loginproject.security.handler.UserAuthenticationFailureHandler;
 import com.example.loginproject.security.handler.UserAuthenticationSuccessHandler;
 import com.example.loginproject.security.handler.UserLogoutHandler;
@@ -26,6 +27,7 @@ public class SecurityConfig {
     private final UserAuthenticationSuccessHandler authenticationSuccessHandler;
     private final UserAuthenticationFailureHandler authenticationFailureHandler;
     private final UserLogoutHandler logoutHandler;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -39,29 +41,34 @@ public class SecurityConfig {
 
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // URL 별 접근 권한 설정
+                // 접근 권한 설정
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()  // 로그인/로그아웃은 누구나 접근 가능
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")  // 관리자 API는 ADMIN 권한 필요
-                        .anyRequest().authenticated()  // 그 외 모든 요청은 인증 필요
+                        .requestMatchers("/api/auth/**").permitAll() // 로그인 및 회원가입은 모두 접근 가능
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN") //관리자 권한
+                        .anyRequest().authenticated()
                 )
 
-                // 폼 로그인 설정
+
                 .formLogin(form -> form
-                        .loginProcessingUrl("/api/auth/login")  // 로그인 처리 URL
-                        .usernameParameter("userId")  // JSON의 userId 필드명
-                        .passwordParameter("password")  // JSON의 password 필드명
-                        .successHandler(authenticationSuccessHandler)  // 로그인 성공 시 Handler
-                        .failureHandler(authenticationFailureHandler)  // 로그인 실패 시 Handler
+                        .loginProcessingUrl("/api/auth/login")
+                        .usernameParameter("userId")
+                        .passwordParameter("password")
+                        .successHandler(authenticationSuccessHandler)
+                        .failureHandler(authenticationFailureHandler)
                 )
 
                 // 로그아웃 설정
                 .logout(logout -> logout
-                        .logoutUrl("/api/auth/logout")  // 로그아웃 URL
-                        .logoutSuccessHandler(logoutHandler)  // 로그아웃 성공 시 Handler
-                        .invalidateHttpSession(true)  // 세션 무효화
-                        .deleteCookies("JSESSIONID")  // 세션 쿠키 삭제
+                        .logoutUrl("/api/auth/logout")
+                        .logoutSuccessHandler(logoutHandler)
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                )
+
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(authenticationEntryPoint) // 인증 예외 처리 핸들러
                 );
+
         return http.build();
     }
 
