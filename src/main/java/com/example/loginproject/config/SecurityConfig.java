@@ -43,18 +43,20 @@ public class SecurityConfig {
 
                 // 접근 권한 설정
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // 로그인 및 회원가입은 모두 접근 가능
+                        .requestMatchers("/", "/login", "/api/auth/**").permitAll() // 로그인 및 회원가입은 모두 접근 가능
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") //관리자 권한
                         .anyRequest().authenticated()
                 )
 
 
                 .formLogin(form -> form
+                        .loginPage("/login")
                         .loginProcessingUrl("/api/auth/login")
                         .usernameParameter("userId")
                         .passwordParameter("password")
                         .successHandler(authenticationSuccessHandler)
                         .failureHandler(authenticationFailureHandler)
+                        .permitAll()
                 )
 
                 // 로그아웃 설정
@@ -63,6 +65,7 @@ public class SecurityConfig {
                         .logoutSuccessHandler(logoutHandler)
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
+                        .permitAll()
                 )
 
                 .exceptionHandling(exceptions -> exceptions
