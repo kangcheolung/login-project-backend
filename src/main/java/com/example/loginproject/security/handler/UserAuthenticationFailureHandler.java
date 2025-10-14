@@ -24,13 +24,16 @@ public class UserAuthenticationFailureHandler implements AuthenticationFailureHa
     public void onAuthenticationFailure(
             HttpServletRequest request,
             HttpServletResponse response,
-            AuthenticationException exception
+            AuthenticationException exception // 인증 실패 예외
     ) throws IOException, ServletException {
 
         log.warn("로그인 실패: {}", exception.getMessage());
 
+        // json 변환 후 응답
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+        // 실패 응답
         response.getWriter().write(
                 objectMapper.writeValueAsString(
                         CommonResponse.fail("아이디 또는 비밀번호가 일치하지 않습니다")

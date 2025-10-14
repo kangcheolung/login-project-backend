@@ -26,6 +26,7 @@ public class BoardController {
 
     private final BoardService boardService;
 
+    // 전체 게시글 조회 (페이징)
     @GetMapping("/all")
     public CommonResponse<Page<BoardListResponse>> getAllBoards(
             @PageableDefault(size = 10, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable
@@ -34,6 +35,7 @@ public class BoardController {
         return CommonResponse.ok(boardListResponses);
     }
 
+    // 게시글 생성
     @PostMapping
     public CommonResponse<BoardResponse> createBoard(
             @RequestBody BoardRequest boardRequest,
@@ -43,6 +45,7 @@ public class BoardController {
         return CommonResponse.ok(boardResponse);
     }
 
+    // 내가 쓴 게시글 조회 (페이징)
     @GetMapping("/my")
     public CommonResponse<Page<BoardListResponse>> getMyBoards(
             @AuthenticationPrincipal CustomUserDetails currentUser,
@@ -52,6 +55,7 @@ public class BoardController {
         return CommonResponse.ok(boardListResponses);
     }
 
+    // 특정 게시글 상세 조회
     @GetMapping("/{boardNo}")
     public CommonResponse<BoardResponse> getBoardDetail(
             @PathVariable Long boardNo,
@@ -61,7 +65,7 @@ public class BoardController {
         return CommonResponse.ok(boardResponse);
     }
 
-
+    // 게시글 수정
     @PutMapping("/{boardNo}")
     public CommonResponse<BoardResponse> updateBoard(
             @PathVariable Long boardNo,
@@ -72,7 +76,7 @@ public class BoardController {
         return CommonResponse.ok(boardResponse);
     }
 
-
+    // 게시글 삭제
     @DeleteMapping("/{boardNo}")
     public CommonResponse<Void> deleteBoard(
             @PathVariable Long boardNo,

@@ -19,8 +19,6 @@ public class AdminController {
     /**
      * 전체 사용자 목록 조회
      * GET /api/admin/users
-     *
-     * @return 전체 사용자 목록 (권한 정보 포함)
      */
     @GetMapping("/users")
     public CommonResponse<List<UserRoleResponse>> getAllUsers() {
@@ -31,9 +29,6 @@ public class AdminController {
     /**
      * 특정 사용자의 권한 조회
      * GET /api/admin/users/{userNo}/roles
-     *
-     * @param userNo 조회할 사용자 번호
-     * @return 해당 사용자의 권한 정보
      */
     @GetMapping("/users/{userNo}/roles")
     public CommonResponse<UserRoleResponse> getUserRoles(
@@ -46,10 +41,6 @@ public class AdminController {
     /**
      * 사용자 권한 수정
      * PUT /api/admin/users/{userNo}/roles
-     *
-     * @param userNo 권한을 수정할 사용자 번호
-     * @param request 새로운 권한 정보
-     * @return 수정된 사용자의 권한 정보
      */
     @PutMapping("/users/{userNo}/roles")
     public CommonResponse<UserRoleResponse> updateUserRoles(
@@ -62,10 +53,6 @@ public class AdminController {
 
     /**
      * 사용자 삭제 (탈퇴 처리)
-     * DELETE /api/admin/users/{userNo}
-     *
-     * @param userNo 삭제할 사용자 번호
-     * @return 성공 응답
      */
     @DeleteMapping("/users/{userNo}")
     public CommonResponse<Void> deleteUser(

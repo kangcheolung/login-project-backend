@@ -33,6 +33,8 @@ public class UserLogoutHandler implements LogoutSuccessHandler {
 
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
+
+
         response.getWriter().write(
                 objectMapper.writeValueAsString(
                         CommonResponse.ok("로그아웃되었습니다")

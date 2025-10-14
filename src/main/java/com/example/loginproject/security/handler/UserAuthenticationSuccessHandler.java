@@ -39,6 +39,7 @@ public class UserAuthenticationSuccessHandler implements AuthenticationSuccessHa
 
         Map<String, Object> userInfo = createUserInfo(userDetails);
 
+        // json 변환 후 응답
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().write(
@@ -46,6 +47,7 @@ public class UserAuthenticationSuccessHandler implements AuthenticationSuccessHa
         );
     }
 
+    // 사용자 정보와 권한을 맵으로 생성
     private Map<String, Object> createUserInfo(CustomUserDetails userDetails) {
         Map<String, Object> userInfo = new HashMap<>();
         userInfo.put("userNo", userDetails.getUserNo());
